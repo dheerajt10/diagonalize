@@ -38,7 +38,7 @@ export default function TestPage() {
       }
       const data = await response.json()
       // The API returns a single email object, so we wrap it in an array
-      setEmails(Array.isArray(data) ? data : [data])
+      setEmails((Array.isArray(data) ? data : [data]).toReversed())
     } catch (err) {
       if (err instanceof Error && err.message.includes('CORS')) {
         setError('CORS error: The server needs to allow cross-origin requests. Try opening the ngrok URL directly in your browser first, or add CORS headers to your server.')
