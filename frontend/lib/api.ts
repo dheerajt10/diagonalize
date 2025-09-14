@@ -1,5 +1,6 @@
 // API configuration and utilities for connecting to the backend
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'
+const GPU_API_URL = process.env.NEXT_PUBLIC_GPU_API_URL || 'http://34.222.82.242:3000'
 
 interface ApiResponse<T> {
   success: boolean
@@ -25,6 +26,14 @@ interface VerifyRequest {
 interface VerifyResponse {
   success: boolean
   message: string
+}
+
+interface AskRequest {
+  question: string
+}
+
+interface AskResponse {
+  answer: string
 }
 
 class ApiError extends Error {
@@ -115,7 +124,41 @@ export const api = {
   async getEmails(): Promise<any> {
     return apiRequest('/emails')
   },
+
+  // Ask medical question
+  async ask(data: AskRequest): Promise<AskResponse> {
+    const url = `${GPU_API_URL}/ask`
+    
+    const config: RequestInit = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    }
+
+    try {
+      const response = await fetch(url, config)
+      
+      if (!response.ok) {
+        throw new ApiError(response.status, `HTTP error! status: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error
+      }
+      
+      // Handle network errors, CORS issues, etc.
+      if (error instanceof Error) {
+        throw new ApiError(0, `Network error: ${error.message}`)
+      }
+      
+      throw new ApiError(0, 'Unknown error occurred')
+    }
+  },
 }
 
 export { ApiError }
-export type { SignupRequest, SignupResponse, VerifyRequest, VerifyResponse }
+export type { SignupRequest, SignupResponse, VerifyRequest, VerifyResponse, AskRequest, AskResponse }
