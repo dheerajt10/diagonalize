@@ -59,6 +59,8 @@ export function MedicalNotesEditor() {
       </header>
 
       <main className="max-w-5xl mx-auto px-8 py-12">
+        
+        {/* 
         <Card className="mb-8 p-6 bg-card border border-border/50 shadow-sm rounded-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1">
@@ -91,6 +93,7 @@ export function MedicalNotesEditor() {
             </div>
           </div>
         </Card>
+        */}
 
         <Card className="bg-card border border-border/50 shadow-sm rounded-xl overflow-hidden">
           <div className="p-8">
@@ -125,29 +128,14 @@ Assessment & Plan:"
               style={{ fontFamily: "inherit" }}
             />
 
-            <div className="mt-6 flex justify-between items-center">
+            <div className="mt-6 flex justify-end">
               <button
-                onClick={handleAnalyze}
-                disabled={!notes.trim() || isAnalyzing}
-                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm flex items-center gap-2"
+                onClick={handleSubmit}
+                disabled={!notes.trim() || isSubmitting}
+                className="px-8 py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm flex items-center gap-2"
               >
-                {isAnalyzing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Brain className="h-4 w-4" />
-                )}
-                {isAnalyzing ? "Analyzing..." : "Analyze with AI"}
-              </button>
-              
-              <button
-                onClick={() => {
-                  setLastSaved(new Date())
-                  // Handle submit logic here
-                }}
-                disabled={!patientUsername.trim() || !notes.trim()}
-                className="px-8 py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
-              >
-                Submit Notes
+                {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isSubmitting ? "Submitting..." : "Submit Notes"}
               </button>
             </div>
           </div>
