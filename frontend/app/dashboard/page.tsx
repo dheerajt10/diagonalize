@@ -28,17 +28,6 @@ export default function HomePage() {
       views: 1240,
     },
     {
-      username: "Software Engineering Career",
-      company: "Meta • E5",
-      timestamp: "5d",
-      title: "5 girlfriends every engineer secretly has",
-      content:
-        "1. Stack Overflow - Always there when you need her\n2. ChatGPT - The new relationship that's getting serious\n3. GitHub Copilot - Finishes your sentences\n4. Documentation - The one you should spend more time with\n5. Coffee - The most loyal relationship of all\n\nWhich one are you most committed to? 😂",
-      likes: 156,
-      comments: 89,
-      views: 3420,
-    },
-    {
       username: "Product Management",
       company: "Google • L5",
       timestamp: "2d",
