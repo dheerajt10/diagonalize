@@ -21,6 +21,7 @@ from webauthn.helpers.structs import (
 )
 from webauthn.helpers import parse_authentication_credential_json, bytes_to_base64url, base64url_to_bytes, parse_registration_credential_json
 from profile_contract import read_profile, store_profile
+import threading
 
 
 app = Flask(__name__)
@@ -158,12 +159,16 @@ def webauthn_register_submit():
             'sign_count': verification.sign_count,
         }
 
-        # Store profile on chain
-        store_profile(
-            key_to_store=auth_key['public_key'],
-            username_to_store=username,
-            company_to_store=get_domain_from_email(email)
-        )
+        # Store profile on chain asynchronously
+        threading.Thread(
+            target=store_profile,
+            kwargs={
+                'key_to_store': auth_key['public_key'],
+                'username_to_store': username,
+                'company_to_store': get_domain_from_email(email)
+            },
+            daemon=True
+        ).start()
 
         return jsonify({"message": "Successfully logged in"})
     except Exception as e:
