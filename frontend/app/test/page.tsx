@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { API_BASE_URL } from "@/lib/api"
 
 interface Email {
   peer: string
@@ -23,7 +24,7 @@ export default function TestPage() {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch('https://95ca9122da21.ngrok-free.app/emails', {
+      const response = await fetch(API_BASE_URL + '/emails', {
         method: 'GET',
         mode: 'cors',
         headers: {
@@ -57,7 +58,7 @@ export default function TestPage() {
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Test - Email Viewer</h1>
+          <h1 className="text-3xl font-bold">SMTP Email Viewer</h1>
           <Button onClick={fetchEmails} disabled={loading}>
             {loading ? 'Refreshing...' : 'Refresh'}
           </Button>
