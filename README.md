@@ -4,6 +4,8 @@
 
 Diagonalize is a privacy-preserving, verifiable OAuth system built on EigenCloud. It leverages Trusted Execution Environments (TEEs) to validate emails and other dynamic identity attributes, ensuring that sensitive user data remains confidential—even from the application operator. After verification, Diagonalize uses WebAuthn to bind client public keys to user IDs, providing authentication without exposing user activity to third parties.
 
+As an example consumer of the app, we implemented a pseudonymous forum for people verified to be working at top tech companies, as well as a diagnostic healthcare tool that uses private inference. 
+
 ## Motivation
 
 **Traditional OAuth Issues:**
