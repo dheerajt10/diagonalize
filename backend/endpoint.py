@@ -100,7 +100,6 @@ def verify():
         return jsonify({"success": False, "message": "Invalid or missing OTP"}), 400
 
 
-# Now expects email as a query param or JSON body
 @app.route("/webauthn/register", methods=["GET"])
 def webauthn_register():
     email = request.args.get("email")
