@@ -134,7 +134,7 @@ export function AuthForm() {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <Building2 className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="text-2xl font-bold text-foreground">Blind</span>
+          <span className="text-2xl font-bold text-foreground">Seethrough</span>
         </div>
       </div>
 

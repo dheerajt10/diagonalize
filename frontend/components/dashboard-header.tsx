@@ -13,7 +13,7 @@ export function DashboardHeader() {
           <div className="flex h-8 w-8 items-center justify-center rounded bg-primary text-primary-foreground font-bold text-sm">
             B
           </div>
-          <span className="font-semibold text-lg text-foreground">Blind</span>
+          <span className="font-semibold text-lg text-foreground">Seethrough</span>
         </div>
 
         {/* Search Bar */}
