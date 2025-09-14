@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Updated color scheme to match Blind's red/coral branding */
+  --background: 0 0% 100%; /* Pure white */
+  --foreground: 224 71.4% 4.1%; /* Dark gray for text */
+  --card: 0 0% 100%; /* White card backgrounds */
+  --card-foreground: 224 71.4% 4.1%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 71.4% 4.1%;
+  --primary: 346 77% 49%; /* Blind's red/coral #D73527 */
+  --primary-foreground: 0 0% 100%; /* White text on red */
+  --secondary: 220 14.3% 95.9%;
+  --secondary-foreground: 220.9 39.3% 11%;
+  --muted: 220 14.3% 95.9%;
+  --muted-foreground: 220 8.9% 46.1%;
+  --accent: 346 77% 49%; /* Same as primary for consistency */
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 220 13% 91%; /* Light border */
+  --input: 220 13% 91%; /* Light input backgrounds */
+  --ring: 346 77% 49%; /* Red focus ring */
+  --radius: 0.5rem; /* Slightly smaller radius for cleaner look */
+}
+
+.dark {
+  --background: 224 71.4% 4.1%;
+  --foreground: 0 0% 95%;
+  --card: 224 71.4% 4.1%;
+  --card-foreground: 0 0% 95%;
+  --popover: 224 71.4% 4.1%;
+  --popover-foreground: 0 0% 95%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 346 77% 49%;
+  --secondary: 215 27.9% 16.9%;
+  --secondary-foreground: 0 0% 95%;
+  --muted: 215 27.9% 16.9%;
+  --muted-foreground: 217.9 10.6% 64.9%;
+  --accent: 215 27.9% 16.9%;
+  --accent-foreground: 0 0% 95%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 95%;
+  --border: 215 27.9% 16.9%;
+  --input: 215 27.9% 16.9%;
+  --ring: 346 77% 49%;
+}
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
