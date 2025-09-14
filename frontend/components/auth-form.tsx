@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Building2 } from "lucide-react"
 import { VerificationCode } from "./verification-code"
 import { api, ApiError } from "@/lib/api"
+import { createPasskey } from "./createPasskey"
 
 export function AuthForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -77,6 +78,14 @@ export function AuthForm() {
 
       if (response.success) {
         setSuccess('Email verified successfully! You can now sign in.')
+
+        const options = await api.getCredentialOptions(signupEmail);
+        const credential = await createPasskey(options);
+
+        console.log("Submitting credentials");
+
+        await api.submitCredentials(credential, signupEmail);
+
         // Redirect to dashboard or handle successful verification
         window.location.href = '/dashboard'
       } else {

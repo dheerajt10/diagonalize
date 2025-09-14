@@ -37,4 +37,6 @@ export const createPasskey = async (decoded_options=sampleCreationOptions) => {
 
     console.log("Created credential: ");
     console.log(credential);
+
+    return credential;
 }

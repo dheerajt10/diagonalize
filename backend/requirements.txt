@@ -3,3 +3,4 @@ python-dotenv==1.0.1
 aiosmtpd
 flask
 flask_cors
+webauthn

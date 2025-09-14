@@ -93,6 +93,23 @@ export const api = {
     })
   },
 
+  // Get options for credential creation
+  async getCredentialOptions(email: string): Promise<any> {
+    // Send email as a query parameter (GET)
+    const params = new URLSearchParams({ email }).toString();
+    return apiRequest(`/webauthn/register?${params}`);
+  },
+
+  async submitCredentials(credential: any, email: string): Promise<any> {
+    return apiRequest('/webauthn/register/submit', {
+      method: 'POST',
+      body: JSON.stringify({
+        credential,
+        email
+      })
+    });
+  },
+
   // Get emails (for testing)
   async getEmails(): Promise<any> {
     return apiRequest('/emails')

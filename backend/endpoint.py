@@ -1,12 +1,34 @@
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response, session
 from flask_cors import CORS
 import secrets
 import smtplib
 import os
 import random
+from webauthn import (
+    generate_registration_options,
+    options_to_json,
+    verify_registration_response,
+    generate_authentication_options,
+    verify_authentication_response,
+)
+from webauthn.helpers.structs import (
+    AuthenticatorSelectionCriteria,
+    ResidentKeyRequirement,
+    RegistrationCredential,
+    UserVerificationRequirement,
+    PublicKeyCredentialDescriptor,
+    AuthenticationCredential,
+)
+from webauthn.helpers import bytes_to_base64url, base64url_to_bytes, parse_registration_credential_json
+
 
 app = Flask(__name__)
+# Set a unique and secret key for session support
+app.secret_key = secrets.token_hex(32)
 CORS(app)
+
+# Store for WebAuthn challenges, keyed by email
+challenge_store = {}
 
 @app.route("/emails", methods=["GET"])
 def get_emails():
@@ -76,6 +98,63 @@ def verify():
         return resp
     else:
         return jsonify({"success": False, "message": "Invalid or missing OTP"}), 400
+
+
+# Now expects email as a query param or JSON body
+@app.route("/webauthn/register", methods=["GET"])
+def webauthn_register():
+    email = request.args.get("email")
+    if not email and request.is_json:
+        json_data = request.get_json(silent=True)
+        if json_data:
+            email = json_data.get("email")
+    if not email:
+        return jsonify({"error": "Missing email for challenge storage"}), 400
+    options = generate_registration_options(
+        # TODO: set ID based on actual user id
+        user_id=bytes(1),
+        user_name=email,
+        rp_id="http://localhost:3000",
+        rp_name="localhost",
+        authenticator_selection=AuthenticatorSelectionCriteria(
+            resident_key=ResidentKeyRequirement.DISCOURAGED,
+        ),
+        exclude_credentials=[],
+    )
+    challenge_store[email] = options.challenge
+    return options_to_json(options)
+
+
+@app.route("/webauthn/register/submit", methods=["POST"])
+def webauthn_register_submit():
+    try:
+        data = request.get_json()
+        credential_data = data.get("credential")
+        email = data.get("email")
+        credential = parse_registration_credential_json(credential_data)
+
+        challenge = challenge_store.pop(email, None)
+        if not challenge:
+            return jsonify({"error": "missing challenge for this email"}), 400
+
+        verification = verify_registration_response(
+            credential=credential,
+            expected_challenge=challenge,
+            expected_rp_id="http://localhost:3000",
+            expected_origin="localhost",
+            require_user_verification=False,
+        )
+        return jsonify({"message": "Successfully logged in"})
+    except Exception as e:
+        print(f"Error in webauthn_register_submit: {e}")
+        return jsonify({"error": "invalid credential response"})
+    # auth = Key(
+    #     user=current_user._get_current_object(),
+    #     name=request.form['name'],
+    #     credential_id=bytes_to_base64url(verification.credential_id),
+    #     public_key=bytes_to_base64url(verification.credential_public_key),
+    #     sign_count=verification.sign_count,
+    # )
 
 
 if __name__ == '__main__':
