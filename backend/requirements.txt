@@ -1,0 +1,5 @@
+eth-account==0.13.7
+python-dotenv==1.0.1
+aiosmtpd
+flask
+flask_cors
