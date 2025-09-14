@@ -148,7 +148,7 @@ def webauthn_register_submit():
             credential=credential,
             expected_challenge=challenge,
             expected_rp_id="localhost",
-            expected_origin="localhost",
+            expected_origin="http://localhost:3000",
             require_user_verification=False,
         )
 
@@ -164,7 +164,7 @@ def webauthn_register_submit():
             username_to_store=username,
             company_to_store=get_domain_from_email(email)
         )
-        
+
         return jsonify({"message": "Successfully logged in"})
     except Exception as e:
         print(f"Error in webauthn_register_submit: {e}")
