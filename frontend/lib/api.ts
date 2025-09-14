@@ -1,5 +1,5 @@
 // API configuration and utilities for connecting to the backend
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'
 const GPU_API_URL = process.env.NEXT_PUBLIC_GPU_API_URL || 'http://34.222.82.242:3000'
 
 interface ApiResponse<T> {
