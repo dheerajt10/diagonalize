@@ -11,11 +11,11 @@ interface VerificationCodeProps {
   email: string
   onBack: () => void
   onVerify: (code: string) => void
+  isLoading?: boolean
 }
 
-export function VerificationCode({ email, onBack, onVerify }: VerificationCodeProps) {
+export function VerificationCode({ email, onBack, onVerify, isLoading = false }: VerificationCodeProps) {
   const [code, setCode] = useState(["", "", "", "", "", ""])
-  const [isLoading, setIsLoading] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const handleInputChange = (index: number, value: string) => {
@@ -42,11 +42,7 @@ export function VerificationCode({ email, onBack, onVerify }: VerificationCodePr
     const fullCode = code.join("")
     if (fullCode.length !== 6) return
 
-    setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
     onVerify(fullCode)
-    setIsLoading(false)
   }
 
   const handleResend = async () => {

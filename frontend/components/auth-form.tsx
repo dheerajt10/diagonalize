@@ -10,12 +10,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Building2 } from "lucide-react"
 import { VerificationCode } from "./verification-code"
+import { api, ApiError } from "@/lib/api"
 
 export function AuthForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showVerification, setShowVerification] = useState(false)
   const [signupEmail, setSignupEmail] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,29 +32,69 @@ export function AuthForm() {
     e.preventDefault()
     const formData = new FormData(e.target as HTMLFormElement)
     const email = formData.get("signup-email") as string
+    const company = formData.get("company") as string
 
     setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsLoading(false)
+    setError(null)
+    setSuccess(null)
 
-    setSignupEmail(email)
-    setShowVerification(true)
+    try {
+      const response = await api.signup({
+        email,
+        company,
+      })
+      
+      setSuccess(response.message)
+      setSignupEmail(email)
+      setShowVerification(true)
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(`Failed to send verification email: ${err.message}`)
+      } else {
+        setError('An unexpected error occurred. Please try again.')
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleBackToSignup = () => {
     setShowVerification(false)
     setSignupEmail("")
+    setError(null)
+    setSuccess(null)
   }
 
-  const handleVerifyCode = (code: string) => {
-    console.log("Verification code:", code)
-    // Handle successful verification
-    setShowVerification(false)
+  const handleVerifyCode = async (code: string) => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await api.verify({
+        email: signupEmail,
+        otp: code,
+      })
+
+      if (response.success) {
+        setSuccess('Email verified successfully! You can now sign in.')
+        // Redirect to dashboard or handle successful verification
+        window.location.href = '/dashboard'
+      } else {
+        setError(response.message || 'Verification failed')
+      }
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(`Verification failed: ${err.message}`)
+      } else {
+        setError('An unexpected error occurred during verification.')
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (showVerification) {
-    return <VerificationCode email={signupEmail} onBack={handleBackToSignup} onVerify={handleVerifyCode} />
+    return <VerificationCode email={signupEmail} onBack={handleBackToSignup} onVerify={handleVerifyCode} isLoading={isLoading} />
   }
 
   return (
@@ -85,6 +128,18 @@ export function AuthForm() {
                 Sign Up
               </TabsTrigger>
             </TabsList>
+
+            {/* Error and Success Messages */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">
+                {success}
+              </div>
+            )}
 
             <TabsContent value="login" className="space-y-4">
               <form onSubmit={handleSubmit} className="space-y-4">

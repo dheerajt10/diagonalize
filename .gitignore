@@ -73,3 +73,4 @@ Cargo.lock
 # Go
 *.test
 *.prof
+backend/log.log

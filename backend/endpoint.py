@@ -3,6 +3,7 @@ from flask_cors import CORS
 import secrets
 import smtplib
 import os
+import random
 
 app = Flask(__name__)
 CORS(app)
@@ -47,15 +48,18 @@ def status():
 
 @app.route('/signup', methods=['POST'])
 def signup():
-    data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
-    otp = secrets.token_urlsafe(16)
-    # Store OTP in global dict and send email
-    otp_store[email] = otp
-    send_verification_email(email, otp)
-    resp = jsonify({'message': 'Verification email sent'})
-    return resp
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        otp = str(random.randint(100000, 999999))  # Generate 6-digit number
+        # Store OTP in global dict and send email
+        otp_store[email] = otp
+        send_verification_email(email, otp)
+        print(f"Signup requested for email: {email}, OTP: {otp}")
+        resp = jsonify({'message': 'Verification email sent'})
+        return resp
+    except Exception as e:  
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route("/verify", methods=["POST"])
@@ -75,4 +79,4 @@ def verify():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, threaded=True)
+    app.run(host='0.0.0.0', port=5001, threaded=True)
