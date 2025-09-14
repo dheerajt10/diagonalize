@@ -114,7 +114,7 @@ def webauthn_register():
         # TODO: set ID based on actual user id
         user_id=bytes(1),
         user_name=email,
-        rp_id="http://localhost:3000",
+        rp_id="localhost",
         rp_name="localhost",
         authenticator_selection=AuthenticatorSelectionCriteria(
             resident_key=ResidentKeyRequirement.DISCOURAGED,
@@ -147,7 +147,7 @@ def webauthn_register_submit():
         verification = verify_registration_response(
             credential=credential,
             expected_challenge=challenge,
-            expected_rp_id="http://localhost:3000",
+            expected_rp_id="localhost",
             expected_origin="localhost",
             require_user_verification=False,
         )

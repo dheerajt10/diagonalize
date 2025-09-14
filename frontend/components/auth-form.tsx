@@ -1,91 +1,97 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Building2 } from "lucide-react"
-import { VerificationCode } from "./verification-code"
-import { api, ApiError } from "@/lib/api"
-import { createPasskey } from "./createPasskey"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Building2 } from "lucide-react";
+import { VerificationCode } from "./verification-code";
+import { api, ApiError } from "@/lib/api";
+import { createPasskey } from "./createPasskey";
 
 export function AuthForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [showVerification, setShowVerification] = useState(false)
-  const [signupEmail, setSignupEmail] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-  const [signupUsername, setSignupUsername] = useState("")
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [signupEmail, setSignupEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [signupUsername, setSignupUsername] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsLoading(false)
-  }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setIsLoading(false);
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const formData = new FormData(e.target as HTMLFormElement)
-  const email = formData.get("signup-email") as string
-  const company = formData.get("company") as string
-  const username = formData.get("username") as string
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get("signup-email") as string;
+    const company = formData.get("company") as string;
+    const username = formData.get("username") as string;
 
-    setIsLoading(true)
-    setError(null)
-    setSuccess(null)
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
 
     try {
       const response = await api.signup({
         email,
         company,
         username,
-      })
-      
-  setSuccess(response.message)
-  setSignupEmail(email)
-  setSignupUsername(username)
-  setShowVerification(true)
+      });
+
+      setSuccess(response.message);
+      setSignupEmail(email);
+      setSignupUsername(username);
+      setShowVerification(true);
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(`Failed to send verification email: ${err.message}`)
+        setError(`Failed to send verification email: ${err.message}`);
       } else {
-        setError('An unexpected error occurred. Please try again.')
+        setError("An unexpected error occurred. Please try again.");
       }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleBackToSignup = () => {
-    setShowVerification(false)
-    setSignupEmail("")
-    setError(null)
-    setSuccess(null)
-  }
+    setShowVerification(false);
+    setSignupEmail("");
+    setError(null);
+    setSuccess(null);
+  };
 
   const handleVerifyCode = async (code: string) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
       const response = await api.verify({
         email: signupEmail,
         otp: code,
-      })
+      });
 
       if (response.success) {
-        setSuccess('Email verified successfully! You can now sign in.')
+        setSuccess("Email verified successfully! You can now sign in.");
 
         const options = await api.getCredentialOptions(signupEmail);
 
-        console.log("Creating passkey")
+        console.log("Creating passkey");
 
         const credential = await createPasskey(options);
 
@@ -94,23 +100,30 @@ export function AuthForm() {
         await api.submitCredentials(credential, signupEmail, signupUsername);
 
         // Redirect to dashboard or handle successful verification
-        window.location.href = '/dashboard'
+        window.location.href = "/dashboard";
       } else {
-        setError(response.message || 'Verification failed')
+        setError(response.message || "Verification failed");
       }
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(`Verification failed: ${err.message}`)
+        setError(`Verification failed: ${err.message}`);
       } else {
-        setError('An unexpected error occurred during verification.')
+        setError("An unexpected error occurred during verification.");
       }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (showVerification) {
-    return <VerificationCode email={signupEmail} onBack={handleBackToSignup} onVerify={handleVerifyCode} isLoading={isLoading} />
+    return (
+      <VerificationCode
+        email={signupEmail}
+        onBack={handleBackToSignup}
+        onVerify={handleVerifyCode}
+        isLoading={isLoading}
+      />
+    );
   }
 
   return (
@@ -184,7 +197,6 @@ export function AuthForm() {
 
             <TabsContent value="signup" className="space-y-4">
               <form onSubmit={handleSignup} className="space-y-4">
-
                 <div className="space-y-2">
                   <Label htmlFor="username" className="text-sm font-medium">
                     Username
@@ -241,8 +253,13 @@ export function AuthForm() {
 
               <div className="text-xs text-muted-foreground text-center text-pretty">
                 By signing up, you agree to our{" "}
-                <button className="text-primary hover:text-primary/80 transition-colors">Terms of Service</button> and{" "}
-                <button className="text-primary hover:text-primary/80 transition-colors">Privacy Policy</button>
+                <button className="text-primary hover:text-primary/80 transition-colors">
+                  Terms of Service
+                </button>{" "}
+                and{" "}
+                <button className="text-primary hover:text-primary/80 transition-colors">
+                  Privacy Policy
+                </button>
               </div>
             </TabsContent>
           </Tabs>
@@ -256,5 +273,5 @@ export function AuthForm() {
         </p>
       </div>
     </div>
-  )
+  );
 }
