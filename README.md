@@ -1,4 +1,3 @@
-
 <img width="488" height="219" alt="Diagonalize Logo" src="https://github.com/user-attachments/assets/1bba28d3-62d6-4a33-851e-f46231978b00" />
 
 # Diagonalize
@@ -25,6 +24,28 @@ Diagonalize is a privacy-preserving, verifiable OAuth system built on EigenCloud
 3. **WebAuthn registration**: After successful validation, the user's device generates a public/private key pair. The public key is bound to the user ID.
 4. **Publish on Chain**: The username, corresponding public key, and the relevant claim (eg. the company you work at, verified through email) are published on chain, along with the attestation from EigenCloud. 
 5. **Authentication**: On subsequent logins, the user authenticates with their device using WebAuthn, with no passwords or shared secrets. Third party applications can use the credentials published on chain after verifying the attestations, thus giving them confidence in the validation without seeing any of the user's data.
+
+```mermaid
+sequenceDiagram
+	participant User
+	participant Frontend
+	participant Backend (TEE)
+	participant Blockchain
+	participant ThirdPartyApp
+
+	User->>Frontend: Request authentication
+	Frontend->>Backend (TEE): Forward identity info (e.g., email)
+	Backend (TEE)->>Backend (TEE): Validate identity (e.g., email verification)
+	Backend (TEE)-->>Frontend: Validation result (attestation)
+	Frontend->>User: Initiate WebAuthn registration
+	User->>Frontend: Generate public/private key pair
+	Frontend->>Backend (TEE): Send public key, claim, attestation
+	Backend (TEE)->>Blockchain: Publish (username, public key, claim, attestation)
+	Blockchain-->>ThirdPartyApp: Credentials and attestation (on request)
+	User->>Frontend: Authenticate with WebAuthn (future logins)
+	Frontend->>ThirdPartyApp: Present credentials (public key, claim, attestation)
+	ThirdPartyApp->>Blockchain: Verify credentials and attestation
+```
 
 ## Key Features
 
