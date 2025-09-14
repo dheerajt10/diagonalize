@@ -100,12 +100,13 @@ export const api = {
     return apiRequest(`/webauthn/register?${params}`);
   },
 
-  async submitCredentials(credential: any, email: string): Promise<any> {
+  async submitCredentials(credential: any, email: string, username: string): Promise<any> {
     return apiRequest('/webauthn/register/submit', {
       method: 'POST',
       body: JSON.stringify({
         credential,
-        email
+        email,
+        username
       })
     });
   },

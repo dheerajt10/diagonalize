@@ -20,6 +20,7 @@ export function AuthForm() {
   const [signupEmail, setSignupEmail] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [signupUsername, setSignupUsername] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,8 +33,9 @@ export function AuthForm() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     const formData = new FormData(e.target as HTMLFormElement)
-    const email = formData.get("signup-email") as string
-    const company = formData.get("company") as string
+  const email = formData.get("signup-email") as string
+  const company = formData.get("company") as string
+  const username = formData.get("username") as string
 
     setIsLoading(true)
     setError(null)
@@ -43,11 +45,13 @@ export function AuthForm() {
       const response = await api.signup({
         email,
         company,
+        username,
       })
       
-      setSuccess(response.message)
-      setSignupEmail(email)
-      setShowVerification(true)
+  setSuccess(response.message)
+  setSignupEmail(email)
+  setSignupUsername(username)
+  setShowVerification(true)
     } catch (err) {
       if (err instanceof ApiError) {
         setError(`Failed to send verification email: ${err.message}`)
@@ -80,11 +84,14 @@ export function AuthForm() {
         setSuccess('Email verified successfully! You can now sign in.')
 
         const options = await api.getCredentialOptions(signupEmail);
+
+        console.log("Creating passkey")
+
         const credential = await createPasskey(options);
 
         console.log("Submitting credentials");
 
-        await api.submitCredentials(credential, signupEmail);
+        await api.submitCredentials(credential, signupEmail, signupUsername);
 
         // Redirect to dashboard or handle successful verification
         window.location.href = '/dashboard'
@@ -177,6 +184,21 @@ export function AuthForm() {
 
             <TabsContent value="signup" className="space-y-4">
               <form onSubmit={handleSignup} className="space-y-4">
+
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-sm font-medium">
+                    Username
+                  </Label>
+                  <Input
+                    id="username"
+                    name="username"
+                    type="text"
+                    placeholder="Choose a username"
+                    required
+                    className="h-11 bg-input border-border focus:ring-2 focus:ring-ring focus:border-transparent"
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="signup-email" className="text-sm font-medium">
                     Work Email

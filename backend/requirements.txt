@@ -4,3 +4,5 @@ aiosmtpd
 flask
 flask_cors
 webauthn
+web3
+eth_account
