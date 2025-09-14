@@ -8,11 +8,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Eye, EyeOff, Building2 } from "lucide-react"
+import { Building2 } from "lucide-react"
+import { VerificationCode } from "./verification-code"
 
 export function AuthForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [showVerification, setShowVerification] = useState(false)
+  const [signupEmail, setSignupEmail] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,6 +23,35 @@ export function AuthForm() {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
     setIsLoading(false)
+  }
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const formData = new FormData(e.target as HTMLFormElement)
+    const email = formData.get("signup-email") as string
+
+    setIsLoading(true)
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    setIsLoading(false)
+
+    setSignupEmail(email)
+    setShowVerification(true)
+  }
+
+  const handleBackToSignup = () => {
+    setShowVerification(false)
+    setSignupEmail("")
+  }
+
+  const handleVerifyCode = (code: string) => {
+    console.log("Verification code:", code)
+    // Handle successful verification
+    setShowVerification(false)
+  }
+
+  if (showVerification) {
+    return <VerificationCode email={signupEmail} onBack={handleBackToSignup} onVerify={handleVerifyCode} />
   }
 
   return (
@@ -69,28 +101,6 @@ export function AuthForm() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium">
-                    Password
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      required
-                      className="h-11 bg-input border-border focus:ring-2 focus:ring-ring focus:border-transparent pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
                 <Button
                   type="submit"
                   className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
@@ -99,22 +109,17 @@ export function AuthForm() {
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
-
-              <div className="text-center">
-                <button className="text-sm text-primary hover:text-primary/80 transition-colors">
-                  Forgot your password?
-                </button>
-              </div>
             </TabsContent>
 
             <TabsContent value="signup" className="space-y-4">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-email" className="text-sm font-medium">
                     Work Email
                   </Label>
                   <Input
                     id="signup-email"
+                    name="signup-email"
                     type="email"
                     placeholder="you@company.com"
                     required
@@ -131,6 +136,7 @@ export function AuthForm() {
                   </Label>
                   <Input
                     id="company"
+                    name="company"
                     type="text"
                     placeholder="Your company name"
                     required
@@ -138,34 +144,12 @@ export function AuthForm() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password" className="text-sm font-medium">
-                    Password
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="signup-password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Create a strong password"
-                      required
-                      className="h-11 bg-input border-border focus:ring-2 focus:ring-ring focus:border-transparent pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
                 <Button
                   type="submit"
                   className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Creating account..." : "Create Account"}
+                  {isLoading ? "Verifying account..." : "Verify Account"}
                 </Button>
               </form>
 
