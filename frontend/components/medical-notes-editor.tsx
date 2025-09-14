@@ -2,17 +2,59 @@
 
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
-import { Clock, User, Calendar, Stethoscope } from "lucide-react"
+import { Clock, User, Calendar, Stethoscope, Loader2 } from "lucide-react"
 
 export function MedicalNotesEditor() {
   const [notes, setNotes] = useState("")
   const [patientUsername, setPatientUsername] = useState("")
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [apiResponse, setApiResponse] = useState<string | null>(null)
 
   const wordCount = notes
     .trim()
     .split(/\s+/)
     .filter((word) => word.length > 0).length
+
+  const handleSubmit = async () => {
+    if (!notes.trim()) return
+
+    setIsSubmitting(true)
+    setSubmitError(null)
+    setApiResponse(null)
+
+    try {
+      const response = await fetch("http://34.222.82.242:3000/ask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question: notes,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log("Response:", data)
+      setApiResponse(data.answer || "No response received")
+      setLastSaved(new Date())
+      
+      // Optionally clear the form or show success message
+      // setNotes("")
+      // setPatientUsername("")
+      
+    } catch (error) {
+      console.error("Error submitting notes:", error)
+      setSubmitError(error instanceof Error ? error.message : "An error occurred while submitting")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -41,6 +83,8 @@ export function MedicalNotesEditor() {
       </header>
 
       <main className="max-w-5xl mx-auto px-8 py-12">
+        
+        {/* 
         <Card className="mb-8 p-6 bg-card border border-border/50 shadow-sm rounded-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1">
@@ -73,6 +117,7 @@ export function MedicalNotesEditor() {
             </div>
           </div>
         </Card>
+        */}
 
         <Card className="bg-card border border-border/50 shadow-sm rounded-xl overflow-hidden">
           <div className="p-8">
@@ -107,20 +152,61 @@ Assessment & Plan:"
               style={{ fontFamily: "inherit" }}
             />
 
+            {submitError && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                Error: {submitError}
+              </div>
+            )}
+
             <div className="mt-6 flex justify-end">
               <button
-                onClick={() => {
-                  setLastSaved(new Date())
-                  // Handle submit logic here
-                }}
-                disabled={!patientUsername.trim() || !notes.trim()}
-                className="px-8 py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+                onClick={handleSubmit}
+                disabled={!notes.trim() || isSubmitting}
+                className="px-8 py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm flex items-center gap-2"
               >
-                Submit Notes
+                {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isSubmitting ? "Submitting..." : "Submit Notes"}
               </button>
             </div>
           </div>
         </Card>
+
+        {apiResponse && (
+          <Card className="mt-8 bg-card border border-border/50 shadow-sm rounded-xl overflow-hidden">
+            <div className="p-8">
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/20">
+                    <Stethoscope className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  </div>
+                  Clinical Analysis Response
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  AI-generated clinical insights and recommendations
+                </p>
+              </div>
+              
+              <div className="bg-muted/20 border border-border/50 rounded-xl p-6">
+                <div className="prose prose-sm max-w-none text-foreground">
+                  {apiResponse.split('\n').map((paragraph, index) => (
+                    <p key={index} className="mb-3 last:mb-0 leading-relaxed">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => setApiResponse(null)}
+                  className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground border border-border/50 rounded-lg hover:bg-muted/50 transition-all duration-200"
+                >
+                  Clear Response
+                </button>
+              </div>
+            </div>
+          </Card>
+        )}
       </main>
     </div>
   )
