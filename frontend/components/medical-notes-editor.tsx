@@ -2,17 +2,35 @@
 
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
-import { Clock, User, Calendar, Stethoscope } from "lucide-react"
+import { Clock, User, Calendar, Stethoscope, Brain, Loader2 } from "lucide-react"
+import { api } from "@/lib/api"
 
 export function MedicalNotesEditor() {
-  const [notes, setNotes] = useState("")
+  const [notes, setNotes] = useState("35-year-old, 2 weeks dry cough, mild fever, chest discomfort. Vitals: T 37.9°C, HR 92, SpO2 97%.")
   const [patientUsername, setPatientUsername] = useState("")
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [aiResponse, setAiResponse] = useState("")
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   const wordCount = notes
     .trim()
     .split(/\s+/)
     .filter((word) => word.length > 0).length
+
+  const handleAnalyze = async () => {
+    if (!notes.trim()) return
+    
+    setIsAnalyzing(true)
+    try {
+      const response = await api.ask({ question: notes })
+      setAiResponse(response.answer)
+    } catch (error) {
+      console.error('Error analyzing notes:', error)
+      setAiResponse('Error occurred while analyzing notes. Please try again.')
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -107,7 +125,20 @@ Assessment & Plan:"
               style={{ fontFamily: "inherit" }}
             />
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-between items-center">
+              <button
+                onClick={handleAnalyze}
+                disabled={!notes.trim() || isAnalyzing}
+                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm flex items-center gap-2"
+              >
+                {isAnalyzing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Brain className="h-4 w-4" />
+                )}
+                {isAnalyzing ? "Analyzing..." : "Analyze with AI"}
+              </button>
+              
               <button
                 onClick={() => {
                   setLastSaved(new Date())
@@ -121,6 +152,30 @@ Assessment & Plan:"
             </div>
           </div>
         </Card>
+
+        {aiResponse && (
+          <Card className="mt-6 bg-card border border-border/50 shadow-sm rounded-xl overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 rounded-lg bg-blue-100">
+                  <Brain className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">AI Analysis</h3>
+                  <p className="text-sm text-muted-foreground">Clinical insights and recommendations</p>
+                </div>
+              </div>
+              <div className="bg-muted/20 border border-border/50 rounded-xl p-4">
+                <div 
+                  className="whitespace-pre-wrap font-sans text-foreground leading-relaxed [&>*]:font-semibold [&_strong]:font-bold [&_strong]:text-gray-900 dark:[&_strong]:text-white"
+                  dangerouslySetInnerHTML={{
+                    __html: aiResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                  }}
+                />
+              </div>
+            </div>
+          </Card>
+        )}
       </main>
     </div>
   )
